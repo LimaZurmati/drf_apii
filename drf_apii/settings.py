@@ -16,6 +16,8 @@ import os
 if os.path.exists('env.py'):
     import env
 
+  
+
 CLOUDINARY_STORAGE = {
     'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL')
 }
@@ -36,6 +38,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['8000-limazurmati-drfapii-9x70jlozh0b.ws.codeinstitute-ide.net']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://8000-limazurmati-drfapii-9x70jlozh0b.ws.codeinstitute-ide.net'
+    # Add more trusted origins if needed
+]  
+
 
 # Application definition
 
@@ -45,12 +52,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'cloudinary',
     'rest_framework',
 
     'profiles',
+    'posts',
 ]
 
 MIDDLEWARE = [
