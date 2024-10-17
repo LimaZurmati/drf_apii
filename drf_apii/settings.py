@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 if os.path.exists('env.py'):
     import env
@@ -46,6 +47,7 @@ REST_USE_JWT = True
 JWT_AUTH_SECURE = True
 JWT_AUTH_COOKIE = 'my-app-auth'
 JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
+JWT_AUTH_SAMESITE = 'None'
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'drf_apii.serializers.CurrentUserSerializer'
@@ -56,18 +58,19 @@ REST_AUTH_SERIALIZERS = {
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-polij@*)42@ltiihu3uw^3q8x-d6-%ok$2h(@^-c#99z3$$5hz'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['8000-limazurmati-drfapii-9x70jlozh0b.ws.codeinstitute-ide.net']
+ALLOWED_HOSTS = ['localhost', 'drf_apii.herokuapp.com']
+
+
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://8000-limazurmati-drfapii-9x70jlozh0b.ws.codeinstitute-ide.net'
+    'https://8000-limazurmati-drfapii-rkq7jmm0h45.ws.codeinstitute-ide.net',
     # Add more trusted origins if needed
-]  
-
+]
 
 # Application definition
 
@@ -89,6 +92,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',  # Optional, if using social authentication
     'dj_rest_auth.registration',
+    'corsheaders',
     'followers',
     'profiles',
     'posts',
@@ -99,6 +103,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -109,6 +114,17 @@ MIDDLEWARE = [
     'django.contrib.sites.middleware.CurrentSiteMiddleware',  # Required if using sites framework
     # 'allauth.account.middleware.AccountMiddleware',  # Required for allauth
 ]
+
+if 'CLIENT_ORIGIN' in os.environ:
+     CORS_ALLOWED_ORIGINS = [
+         os.environ.get('CLIENT_ORIGIN')
+     ]
+ else:
+     CORS_ALLOWED_ORIGIN_REGEXES = [
+         r"^https://.*\.gitpod\.io$",
+     ]
+ CORS_ALLOW_CREDENTIALS = True     
+ 
 
 ROOT_URLCONF = 'drf_apii.urls'
 
@@ -133,13 +149,18 @@ WSGI_APPLICATION = 'drf_apii.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if 'DEV' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+    }
+
 
 
 # Password validation
